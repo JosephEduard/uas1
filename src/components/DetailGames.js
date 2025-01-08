@@ -1,61 +1,74 @@
-import React from "react";
-import axios from "axios";
 import "../style/menu.css";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import gamesData from "../data/games.json";
+import { Link } from "react-router-dom";
 
-const DetailGames = ({ isOpen, onClose, value, data }) => {
-  const gameData = data.find((game) => game.id === value);
+function DetailGames() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [game, setGame] = useState(null);
 
-  if (!isOpen || !gameData) return null;
+  useEffect(() => {
+    const selectedGame = gamesData.find((g) => g.id === id);
+    if (selectedGame) {
+      setGame(selectedGame);
+    }
+  }, [id]);
 
   const addToCart = () => {
-    axios
-      .post("http://localhost:8000/api/cart", { game_id: gameData.id })
-      .then(() => alert("Game berhasil ditambahkan ke keranjang"))
-      .catch((error) => console.error(error));
+    console.log(`Game ${game?.tittle} berhasil ditambahkan ke Keranjang`);
+    navigate("/cart");
   };
+
+  if (!game) {
+    return <p>Loading game details...</p>;
+  }
 
   return (
     <div className="x-popup-overlay">
       <div className="x-popup">
-        <button className="x-close-button" onClick={onClose}>
+        <button className="x-close-button" onClick={() => navigate("/home")}>
           &times;
         </button>
         <div>
           <div className="x-dg-title">
-            <h1>{gameData.tittle}</h1>
+            <h1>{game.tittle}</h1>
           </div>
           <div className="x-dg-group">
             <div className="x-dg-left">
               <div>
-                <img src={gameData.img} alt="" className="w-full h-[300px]" />
+                <Link to={`/game/${game.id}`}>
+                  <img src={game.img} alt="" className="w-full h-[350px]" />
+                </Link>
               </div>
               <div className="x-dg-about">
                 <h5 className="x-dg-about-title">Tentang Game Ini</h5>
-                <p>{gameData.deskripsi}</p>
+                <p>{game.deskripsi}</p>
               </div>
             </div>
             <div className="x-dg-right">
               <div className="x-dg-rincian">
                 <h5 className="x-dg-rincian-title">Rincian Game</h5>
                 <ul>
+                  <li className="x-dg-rincian-list">Nama : {game.tittle}</li>
                   <li className="x-dg-rincian-list">
-                    Nama : {gameData.tittle}
+                    Genre : {game.kategori?.join(", ") || "Unknown"}
                   </li>
                   <li className="x-dg-rincian-list">
-                    Genre : {gameData.kategori.join(", ")}
+                    Pengembang : {game.pengembang}
                   </li>
                   <li className="x-dg-rincian-list">
-                    Pengembang : {gameData.pengembang}
-                  </li>
-                  <li className="x-dg-rincian-list">
-                    Penerbit : {gameData.penerbit}
+                    Penerbit : {game.penerbit}
                   </li>
                 </ul>
               </div>
               <div className="x-dg-co">
-                <h4>Beli {gameData.tittle}</h4>
-                <h5 className="x-dg-harga">Rp {gameData.harga}</h5>
-                <button className="btn btn-warning">Masukan Keranjang</button>
+                <h4>Beli {game.tittle}</h4>
+                <h5 className="x-dg-harga">Rp {game.harga}</h5>
+                <button className="btn btn-warning" onClick={addToCart}>
+                  Masukan Keranjang
+                </button>
               </div>
             </div>
           </div>
@@ -63,6 +76,6 @@ const DetailGames = ({ isOpen, onClose, value, data }) => {
       </div>
     </div>
   );
-};
+}
 
 export default DetailGames;

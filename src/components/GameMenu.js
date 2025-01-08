@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const GameMenu = ({ data, onClick, id }) => {
   // const kategoriRPG = props.data.kategori.filter((game) => game.kategori.includes("RPG"))
@@ -189,7 +190,9 @@ const GameMenu = ({ data, onClick, id }) => {
               onClick={() => onClick(game.id)}
             >
               <div className="flex justify-center align-center">
-                <img src={game.img} alt="" className="w-[90%] h-[300px]" />
+                <Link to={`/game/${game.id}`}>
+                  <img src={game.img} alt="" className="w-full h-[350px]" />
+                </Link>
               </div>
               <div className="flex justify-end align-center mr-3">
                 <span>Rp {game.harga}</span>
