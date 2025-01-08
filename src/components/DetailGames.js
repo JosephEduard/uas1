@@ -1,24 +1,32 @@
 import "../style/menu.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import gamesData from "../data/games.json";
 import { Link } from "react-router-dom";
+import { CartContext } from "../context/CartContext";
 
 function DetailGames() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { addToCart } = useContext(CartContext);
   const [game, setGame] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const selectedGame = gamesData.find((g) => g.id === id);
+    const selectedGame = gamesData.find((game) => game.id === id);
     if (selectedGame) {
       setGame(selectedGame);
+    } else {
+      console.error("Game not found");
     }
   }, [id]);
 
-  const addToCart = () => {
-    console.log(`Game ${game?.tittle} berhasil ditambahkan ke Keranjang`);
-    navigate("/cart");
+  const handleAddToCart = () => {
+    if (game) {
+      addToCart(game);
+      console.log("Added game to cart:", game); // Debugging log
+    } else {
+      console.error("No game selected to add to cart");
+    }
   };
 
   if (!game) {
@@ -66,8 +74,15 @@ function DetailGames() {
               <div className="x-dg-co">
                 <h4>Beli {game.tittle}</h4>
                 <h5 className="x-dg-harga">Rp {game.harga}</h5>
-                <button className="btn btn-warning" onClick={addToCart}>
+                <button className="btn btn-warning" onClick={handleAddToCart}>
                   Masukan Keranjang
+                </button>
+
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate("/home")}
+                >
+                  Kembali ke Home
                 </button>
               </div>
             </div>
