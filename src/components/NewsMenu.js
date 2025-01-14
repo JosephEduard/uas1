@@ -1,23 +1,41 @@
+import "../App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "../style/menu.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-const NewsMenu = ({ data, onClick, id }) => {
+const NewsMenu = ({ onClick }) => {
+  const [games, setGames] = useState([]);
   const selectedGames = [
-    "gta-5",
-    "wukong",
-    "rdr-2",
-    "flight-simulator",
+    "black-myth-wukong",
     "asphalt-8",
-    "farming-simulator-22",
-    "dota-2",
-    "outlast",
-    "hogwarts-legacy",
-  ];
+    "battlefield-2042",
+    "burnout",
+    "valorant",
+    "the-legend-of-zelda",
+    "cyberpunk-2077",
+    "dark-souls-iii",
+    "cities-skyline-ii",
+  ]; // Ensure these match the type of `slug`
 
-  const filterGames = data.filter((games) => selectedGames.includes(games.id));
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/games")
+      .then((response) => {
+        if (response.data && response.data.success) {
+          setGames(
+            response.data.data.filter((game) =>
+              selectedGames.includes(game.slug)
+            )
+          );
+        }
+      })
+      .catch((error) => console.error("Error fetching games data:", error));
+  }, []);
 
   const settings = {
     dots: false,
@@ -56,16 +74,20 @@ const NewsMenu = ({ data, onClick, id }) => {
 
   return (
     <div className="w-3/4 m-auto">
-      <Slider {...settings} className="">
-        {filterGames.map((x) => (
+      <Slider {...settings}>
+        {games.map((game) => (
           <div
             className="x-card h-[350px] text-white rounded-xl relative"
-            id={x.id}
-            onClick={() => onClick(x.id)}
+            key={game.id}
+            onClick={() => onClick(game.id)}
           >
             <div className="flex justify-center align-center">
-              <Link to={`/game/${x.id}`}>
-                <img src={x.img} alt="" className="w-full h-[350px]" />
+              <Link to={`/game/${game.id}`}>
+                <img
+                  src={`http://127.0.0.1:8000/storage/${game.thumbnail}`}
+                  alt={game.title}
+                  className="w-full h-[350px] object-cover"
+                />
               </Link>
             </div>
             <div
@@ -76,8 +98,9 @@ const NewsMenu = ({ data, onClick, id }) => {
                 className="text-white text-lg 
                         hover:text-white"
               >
-                <Link to={`/game/${x.id}`}>Rp {x.harga}</Link>
-                {""}
+                <Link to={`/game/${game.id}`}>
+                  Rp {parseInt(game.price).toLocaleString("id-ID")}
+                </Link>
               </span>
             </div>
           </div>

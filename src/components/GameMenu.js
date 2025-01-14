@@ -1,66 +1,38 @@
+import "../App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "../style/menu.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-const GameMenu = ({ data, onClick, id }) => {
-  // const kategoriRPG = props.data.kategori.filter((game) => game.kategori.includes("RPG"))
+const GameMenu = ({ onClick }) => {
+  const [games, setGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
 
-  const [filteredGames, setFilteredGames] = useState(data);
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/games")
+      .then((response) => {
+        if (response.data && response.data.success) {
+          setGames(response.data.data);
+          setFilteredGames(response.data.data);
+        }
+      })
+      .catch((error) => console.error("Error fetching games data:", error));
+  }, []);
 
-  const filterCategoryRPG = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" RPG ")
+  const filterGamesByCategory = (category) => {
+    const filtered = games.filter(
+      (game) => game.genre && game.genre.includes(category)
     );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategoryBalapan = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Balapan ")
-    );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategoryAksi = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Aksi ")
-    );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategoryPetualangan = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Petualangan ")
-    );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategoryHoror = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Horor ")
-    );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategorySimulasi = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Simulasi ")
-    );
-    setFilteredGames(categoryGames);
-  };
-
-  const filterCategoryStrategi = () => {
-    const categoryGames = data.filter((game) =>
-      game.kategori.includes(" Strategi ")
-    );
-    setFilteredGames(categoryGames);
+    setFilteredGames(filtered);
   };
 
   const showAllGames = () => {
-    setFilteredGames(data);
+    setFilteredGames(games);
   };
 
   const settings = {
@@ -76,30 +48,31 @@ const GameMenu = ({ data, onClick, id }) => {
 
   return (
     <div className="w-3/4 m-auto x-game-menu">
-      <div className=" x-cat-menu">
+      <div className="x-cat-menu">
         <div className="x-cat-title">
           <h3>Kategori</h3>
         </div>
-        <div className=" x-cat-group flex justify-center align-center rounded-xl">
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryRPG}
-            >
-              <img src="/assets/icons/rpg.png" alt="" className="w-16 h-16" />
+        <div className="x-cat-group flex justify-center align-center rounded-xl">
+          <div className="x-cat" onClick={() => filterGamesByCategory("RPG")}>
+            <div className="x-cat-img rounded-full flex justify-center align-center">
+              <img
+                src="/assets/icons/rpg.png"
+                alt="RPG"
+                className="w-16 h-16"
+              />
             </div>
             <div className="flex justify-center align-center">
               <span className="x-cat-title">RPG</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryPetualangan}
-            >
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("First-Person Shooter")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
               <img
                 src="/assets/icons/petualangan.png"
-                alt=""
+                alt="Petualangan"
                 className="w-16 h-16"
               />
             </div>
@@ -107,14 +80,14 @@ const GameMenu = ({ data, onClick, id }) => {
               <span className="x-cat-title">Petualangan</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryBalapan}
-            >
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("Racing")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
               <img
                 src="/assets/icons/balapan.png"
-                alt=""
+                alt="Balapan"
                 className="w-16 h-16"
               />
             </div>
@@ -122,25 +95,29 @@ const GameMenu = ({ data, onClick, id }) => {
               <span className="x-cat-title">Balapan</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryAksi}
-            >
-              <img src="/assets/icons/aksi.png" alt="" className="w-16 h-16" />
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("Action")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
+              <img
+                src="/assets/icons/aksi.png"
+                alt="Aksi"
+                className="w-16 h-16"
+              />
             </div>
             <div className="flex justify-center align-center">
               <span className="x-cat-title">Aksi</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryStrategi}
-            >
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("Strategy")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
               <img
                 src="/assets/icons/strategi.png"
-                alt=""
+                alt="Strategi"
                 className="w-16 h-16"
               />
             </div>
@@ -148,14 +125,14 @@ const GameMenu = ({ data, onClick, id }) => {
               <span className="x-cat-title">Strategi</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategorySimulasi}
-            >
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("Simulation")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
               <img
                 src="/assets/icons/simulator.png"
-                alt=""
+                alt="Simulasi"
                 className="w-16 h-16"
               />
             </div>
@@ -163,19 +140,31 @@ const GameMenu = ({ data, onClick, id }) => {
               <span className="x-cat-title">Simulasi</span>
             </div>
           </div>
-          <div className="x-cat">
-            <div
-              className="x-cat-img rounded-full flex justify-center align-center"
-              onClick={filterCategoryHoror}
-            >
+          <div
+            className="x-cat"
+            onClick={() => filterGamesByCategory("Horror")}
+          >
+            <div className="x-cat-img rounded-full flex justify-center align-center">
               <img
                 src="/assets/icons/horror.png"
-                alt=""
+                alt="Horor"
                 className="w-16 h-16"
               />
             </div>
             <div className="flex justify-center align-center">
               <span className="x-cat-title">Horor</span>
+            </div>
+          </div>
+          <div className="x-cat" onClick={showAllGames}>
+            <div className="x-cat-img rounded-full flex justify-center align-center">
+              <img
+                src="/assets/icons/all.png"
+                alt="All"
+                className="w-16 h-16"
+              />
+            </div>
+            <div className="flex justify-center align-center">
+              <span className="x-cat-title">Semua</span>
             </div>
           </div>
         </div>
@@ -186,16 +175,20 @@ const GameMenu = ({ data, onClick, id }) => {
           {filteredGames.map((game) => (
             <div
               className="x-game-card h-[300px] text-white rounded-xl"
-              id={game.tittle}
+              key={game.id}
               onClick={() => onClick(game.id)}
             >
               <div className="flex justify-center align-center">
                 <Link to={`/game/${game.id}`}>
-                  <img src={game.img} alt="" className="w-full h-[350px]" />
+                  <img
+                    src={`http://127.0.0.1:8000/storage/${game.thumbnail}`}
+                    alt={game.title}
+                    className="w-full h-[350px] object-cover"
+                  />
                 </Link>
               </div>
               <div className="flex justify-end align-center mr-3">
-                <span>Rp {game.harga}</span>
+                <span>Rp {parseInt(game.price).toLocaleString("id-ID")}</span>
               </div>
             </div>
           ))}

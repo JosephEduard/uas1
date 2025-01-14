@@ -1,7 +1,6 @@
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../style/menu.css";
-import gamesData from "../data/games.json";
 import React, { useEffect, useState } from "react";
 import NavigationBar from "./NavigationBar";
 import NewsMenu from "./NewsMenu";
@@ -9,16 +8,20 @@ import GameMenu from "./GameMenu";
 import FooterMenu from "./FooterMenu";
 import DetailGames from "./DetailGames";
 import CTATool from "./CTATool";
+import axios from "axios";
 
 function HomePage() {
   const [games, setGames] = useState([]);
 
   useEffect(() => {
-    try {
-      setGames(gamesData);
-    } catch (error) {
-      console.error("Failed to load game data:", error);
-    }
+    axios
+      .get("http://127.0.0.1:8000/api/games")
+      .then((response) => {
+        setGames(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Failed to load game data:", error);
+      });
   }, []);
 
   const [categoryGames, setCategoryGames] = useState("");
@@ -43,17 +46,16 @@ function HomePage() {
         </div>
         <div>
           <div className="x-menu-news">
-            <NewsMenu data={gamesData} onClick={handleTriggerClick} />
+            <NewsMenu data={games} onClick={handleTriggerClick} />
           </div>
           <div className="x-menu-game">
             <GameMenu
-              data={gamesData}
+              data={games}
               categoryGames={categoryGames}
               onClick={handleTriggerClick}
             />
           </div>
         </div>
-        <DetailGames />
         <div className="x-menu-footer">
           <FooterMenu />
         </div>

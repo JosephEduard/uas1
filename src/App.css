@@ -1,5 +1,12 @@
 .App {
   text-align: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
 .App-logo {
@@ -7,14 +14,8 @@
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
-  background-color: #282c34;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -26,6 +27,80 @@
 
 .App-link {
   color: #61dafb;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.App-link:hover {
+  color: #00b3ff;
+}
+
+/* Form Styles */
+.login-form-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.login-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #61dafb;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 5px;
+  background: #61dafb;
+  color: #282c34;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.login-button:hover {
+  background: #00b3ff;
+  transform: translateY(-2px);
+}
+
+.login-error {
+  color: #ff6b6b;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.login-success {
+  color: #51cf66;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.login-register-text {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
 }
 
 @keyframes App-logo-spin {
@@ -34,5 +109,11 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
   }
 }
