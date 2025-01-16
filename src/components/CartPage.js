@@ -24,19 +24,36 @@ function CartPage() {
   } = useContext(CartContext);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
+      return;
     }
+
+    // Fetch user ID from token
+    const fetchUserId = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserId(response.data.id);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        navigate("/login");
+      }
+    };
+
+    fetchUserId();
   }, [navigate]);
 
   const handleQuantityChange = async (id, newQuantity, stock) => {
     if (newQuantity >= 1 && newQuantity <= stock) {
       try {
-        await updateQuantity(id, newQuantity);
+        await updateQuantity(id, newQuantity, userId);
       } catch (error) {
         console.error("Error updating quantity:", error);
         alert("Gagal mengubah jumlah item");
@@ -46,7 +63,7 @@ function CartPage() {
 
   const handleRemoveFromCart = async (gameId) => {
     try {
-      await removeFromCart(gameId);
+      await removeFromCart(gameId, userId);
     } catch (error) {
       console.error("Error removing item:", error);
       alert("Gagal menghapus item dari keranjang");
@@ -55,7 +72,7 @@ function CartPage() {
 
   const handleClearCart = async () => {
     try {
-      await clearCart();
+      await clearCart(userId);
     } catch (error) {
       console.error("Error clearing cart:", error);
       alert("Gagal mengosongkan keranjang");
@@ -63,7 +80,7 @@ function CartPage() {
   };
 
   const handleCheckout = async () => {
-    if (cart.length === 0) {
+    if (!cart.length) {
       alert("Keranjang masih kosong!");
       return;
     }
@@ -78,6 +95,7 @@ function CartPage() {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/checkout",
         {
+          user_id: userId,
           items: cart.map((item) => ({
             game_id: item.id,
             quantity: item.quantity || 1,
@@ -106,7 +124,9 @@ function CartPage() {
 
       const response = await axios.post(
         "http://127.0.0.1:8000/api/checkout/confirm",
-        {},
+        {
+          user_id: userId,
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -114,7 +134,7 @@ function CartPage() {
 
       if (response.data.status === "success") {
         alert("Pembelian berhasil!");
-        await clearCart();
+        await clearCart(userId);
         setIsCheckingOut(false);
         navigate("/home");
       }
@@ -126,6 +146,7 @@ function CartPage() {
     }
   };
 
+  // Rest of the component remains the same
   if (loading) {
     return (
       <div className="x-wishlist-body min-h-screen">
