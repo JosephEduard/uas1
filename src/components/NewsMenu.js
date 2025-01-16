@@ -20,7 +20,7 @@ const NewsMenu = ({ onClick }) => {
     "cyberpunk-2077",
     "dark-souls-iii",
     "cities-skyline-ii",
-  ]; // Ensure these match the type of `slug`
+  ];
 
   useEffect(() => {
     axios
@@ -77,7 +77,7 @@ const NewsMenu = ({ onClick }) => {
       <Slider {...settings}>
         {games.map((game) => (
           <div
-            className="x-card h-[350px] text-white rounded-xl relative"
+            className="x-card h-[350px] text-white rounded-xl relative game-img-hover"
             key={game.id}
             onClick={() => onClick(game.id)}
           >

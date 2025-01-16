@@ -6,7 +6,6 @@ import NavigationBar from "./NavigationBar";
 import NewsMenu from "./NewsMenu";
 import GameMenu from "./GameMenu";
 import FooterMenu from "./FooterMenu";
-import DetailGames from "./DetailGames";
 import CTATool from "./CTATool";
 import axios from "axios";
 

@@ -9,22 +9,44 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
     try {
-      const response = await axios.post(
-        "https://web-alpha-sage-55.vercel.app/login",
-        {
-          email,
-          password,
-        }
-      );
+      const response = await axios.post("http://127.0.0.1:8000/api/login", {
+        email,
+        password,
+      });
+
+      const userData = {
+        id: response.data.user.id,
+        name: response.data.user.name,
+        email: response.data.user.email,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.user.id);
+      localStorage.setItem("userName", response.data.user.name);
+
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${response.data.token}`;
+
       navigate("/home");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed.");
+      setError(
+        err.response?.data?.message ||
+          "Login failed. Please check your credentials."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -42,6 +64,7 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
+              disabled={isLoading}
             />
           </div>
           <div className="login-form-group">
@@ -53,11 +76,12 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              disabled={isLoading}
             />
           </div>
           {error && <p className="login-error">{error}</p>}
-          <button type="submit" className="login-button">
-            Login
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
         <p className="login-register-text">

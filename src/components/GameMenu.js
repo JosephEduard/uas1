@@ -183,7 +183,7 @@ const GameMenu = ({ onClick }) => {
                   <img
                     src={`http://127.0.0.1:8000/storage/${game.thumbnail}`}
                     alt={game.title}
-                    className="w-full h-[350px] object-cover"
+                    className="w-full h-[350px] object-cover game-img-hover"
                   />
                 </Link>
               </div>

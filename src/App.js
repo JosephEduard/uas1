@@ -8,13 +8,11 @@ import Login from "./components/login";
 import Register from "./components/register";
 import WelcomePage from "./components/WelcomePage";
 import Wishlist from "./components/Wishlist";
-// import Navbar from "./components/Navbar";
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        {/* <Navbar /> */}
+    <Router>
+      <CartProvider>
         <Routes>
           <Route path="/" element={<WelcomePage />} />
           <Route path="/login" element={<Login />} />
@@ -24,8 +22,8 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<CartPage />} />
         </Routes>
-      </Router>
-    </CartProvider>
+      </CartProvider>
+    </Router>
   );
 }
 

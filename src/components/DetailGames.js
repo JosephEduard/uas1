@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../style/menu.css";
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import LoadingAnimation from "./LoadingAnimation";
 import axios from "axios";
@@ -13,44 +12,155 @@ import { faHeartCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 function DetailGames() {
   const { id } = useParams();
-  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } =
-    useContext(CartContext);
+  const { addToCart, cart } = useContext(CartContext);
   const [game, setGame] = useState(null);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/games/${id}`)
-      .then((response) => {
-        const gameData = response.data.data;
-        setGame(gameData);
-      })
-      .catch((error) => {
-        console.error("Error fetching game data:", error);
-      });
+    const fetchGameAndWishlistStatus = async () => {
+      try {
+        setIsLoading(true);
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+
+        const gameResponse = await axios.get(
+          `http://127.0.0.1:8000/api/games/${id}`
+        );
+        setGame(gameResponse.data.data);
+
+        if (userId && token) {
+          const wishlistResponse = await axios.get(
+            `http://127.0.0.1:8000/api/wishlist/${userId}/check/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setIsInWishlist(wishlistResponse.data.inWishlist);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error.response?.data?.message || "Error loading game details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGameAndWishlistStatus();
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (game) {
-      addToCart(game);
-      console.log("Added game to cart:", game);
-      // Optional: Show a success message
-      alert("Game berhasil ditambahkan ke keranjang!");
+  const handleAddToCart = async () => {
+    if (!game) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const gameInCart = cart.find((item) => item.id === game.id);
+    if (gameInCart && gameInCart.quantity >= game.stock) {
+      alert(
+        "Tidak dapat menambah game ke keranjang karena stok tidak mencukupi"
+      );
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      await addToCart(game);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      if (error.response?.status === 401) {
+        navigate("/login");
+      } else {
+        alert(
+          error.response?.data?.message || "Gagal menambahkan ke keranjang"
+        );
+      }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
-  const handleWishlist = () => {
-    if (game) {
-      if (isInWishlist(game.id)) {
-        removeFromWishlist(game.id);
+  const handleWishlist = async () => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    if (!userId || !token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        await axios.delete(
+          `http://127.0.0.1:8000/api/wishlist/${userId}/remove/${game.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsInWishlist(false);
+        alert("Game berhasil dihapus dari wishlist!");
       } else {
-        addToWishlist(game);
+        await axios.post(
+          "http://127.0.0.1:8000/api/wishlist/add",
+          {
+            game_id: game.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsInWishlist(true);
+        alert("Game berhasil ditambahkan ke wishlist!");
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        navigate("/login");
+      } else {
+        console.error("Error updating wishlist:", error);
+        alert(
+          error.response?.data?.message ||
+            "Terjadi kesalahan saat memperbarui wishlist"
+        );
       }
     }
   };
 
-  if (!game) {
+  if (isLoading) {
     return <LoadingAnimation />;
+  }
+
+  if (error) {
+    return (
+      <div className="x-popup-overlay">
+        <div className="x-popup">
+          <div className="text-center">
+            <h2 className="text-xl mb-4">{error}</h2>
+            <button
+              className="btn btn-warning"
+              onClick={() => window.location.reload()}
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!game) {
+    return null;
   }
 
   return (
@@ -63,20 +173,19 @@ function DetailGames() {
           <div className="x-dg-title">
             <h1>
               {game.title}
-              <button className="btn" onClick={handleWishlist}>
-                {isInWishlist(game.id) ? (
-                  <FontAwesomeIcon
-                    icon={faHeartCircleCheck}
-                    size="xl"
-                    className="x-icon"
-                  />
-                ) : (
-                  <FontAwesomeIcon
-                    icon={faHeart}
-                    size="xl"
-                    className="x-icon"
-                  />
-                )}
+              <button
+                className="btn"
+                onClick={handleWishlist}
+                title={
+                  isInWishlist ? "Hapus dari Wishlist" : "Tambah ke Wishlist"
+                }
+              >
+                <FontAwesomeIcon
+                  icon={isInWishlist ? faHeartCircleCheck : faHeart}
+                  size="xl"
+                  className="x-icon"
+                  style={{ color: isInWishlist ? "#ff0000" : "#000000" }}
+                />
               </button>
             </h1>
           </div>
@@ -87,6 +196,9 @@ function DetailGames() {
                   src={`http://127.0.0.1:8000/storage/${game.thumbnail}`}
                   alt={game.title}
                   className="w-full h-[350px]"
+                  onError={(e) => {
+                    e.target.src = "/placeholder-game.jpg";
+                  }}
                 />
               </div>
               <div className="x-dg-about">
@@ -116,9 +228,13 @@ function DetailGames() {
                 <button
                   className="btn btn-warning"
                   onClick={handleAddToCart}
-                  disabled={game.stock <= 0}
+                  disabled={game.stock <= 0 || isAddingToCart}
                 >
-                  {game.stock > 0 ? "Masukkan Keranjang" : "Stok Habis"}
+                  {isAddingToCart
+                    ? "Menambahkan..."
+                    : game.stock > 0
+                    ? "Masukkan Keranjang"
+                    : "Stok Habis"}
                 </button>
                 <button
                   className="btn btn-secondary"

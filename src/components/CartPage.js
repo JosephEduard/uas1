@@ -1,18 +1,21 @@
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../style/menu.css";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { CartContext } from "../context/CartContext";
 import NavigationBar from "./NavigationBar";
 import FooterMenu from "./FooterMenu";
 import { Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons/faShoppingCart";
+import axios from "axios";
+import LoadingCart from "./LoadingCart";
 
 function CartPage() {
   const {
     cart,
+    loading,
     removeFromCart,
     clearCart,
     updateQuantity,
@@ -20,26 +23,120 @@ function CartPage() {
     getCartItemsCount,
   } = useContext(CartContext);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+  const navigate = useNavigate();
 
-  const handleQuantityChange = (id, newQuantity, stock) => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleQuantityChange = async (id, newQuantity, stock) => {
     if (newQuantity >= 1 && newQuantity <= stock) {
-      updateQuantity(id, newQuantity);
+      try {
+        await updateQuantity(id, newQuantity);
+      } catch (error) {
+        console.error("Error updating quantity:", error);
+        alert("Gagal mengubah jumlah item");
+      }
     }
   };
 
-  const handleCheckout = () => {
+  const handleRemoveFromCart = async (gameId) => {
+    try {
+      await removeFromCart(gameId);
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Gagal menghapus item dari keranjang");
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      alert("Gagal mengosongkan keranjang");
+    }
+  };
+
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       alert("Keranjang masih kosong!");
       return;
     }
-    setIsCheckingOut(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/checkout",
+        {
+          items: cart.map((item) => ({
+            game_id: item.id,
+            quantity: item.quantity || 1,
+          })),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.status === "success") {
+        setIsCheckingOut(true);
+        setCheckoutError("");
+      }
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      setCheckoutError(
+        error.response?.data?.message || "Gagal melakukan checkout"
+      );
+    }
   };
 
-  const confirmCheckout = () => {
-    alert("Pembelian berhasil!");
-    clearCart();
-    setIsCheckingOut(false);
+  const confirmCheckout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/checkout/confirm",
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.status === "success") {
+        alert("Pembelian berhasil!");
+        await clearCart();
+        setIsCheckingOut(false);
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error("Error confirming checkout:", error);
+      setCheckoutError(
+        error.response?.data?.message || "Gagal mengkonfirmasi checkout"
+      );
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="x-wishlist-body min-h-screen">
+        <NavigationBar />
+        <Container className="py-5 text-white text-center">
+          <LoadingCart />
+        </Container>
+        <FooterMenu />
+      </div>
+    );
+  }
 
   return (
     <div className="x-wishlist-body min-h-screen">
@@ -48,7 +145,10 @@ function CartPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-white text-3xl font-bold">Keranjang Belanja</h2>
           {cart.length > 0 && (
-            <button className="btn btn-outline-danger" onClick={clearCart}>
+            <button
+              className="btn btn-outline-danger"
+              onClick={handleClearCart}
+            >
               Kosongkan Keranjang
             </button>
           )}
@@ -70,7 +170,6 @@ function CartPage() {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Cart Items */}
             <div className="lg:w-2/3">
               {cart.map((item) => (
                 <div
@@ -139,7 +238,7 @@ function CartPage() {
                       </div>
                       <button
                         className="btn btn-sm btn-outline-danger mt-2"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => handleRemoveFromCart(item.id)}
                       >
                         Hapus
                       </button>
@@ -149,7 +248,6 @@ function CartPage() {
               ))}
             </div>
 
-            {/* Cart Summary */}
             <div className="lg:w-1/3">
               <div className="bg-[#212121] rounded-lg p-6 sticky top-4">
                 <h3 className="text-white text-xl font-bold mb-4">
@@ -173,6 +271,10 @@ function CartPage() {
                   </div>
                 </div>
 
+                {checkoutError && (
+                  <div className="text-danger mb-3">{checkoutError}</div>
+                )}
+
                 <button
                   className="btn btn-warning w-full py-2"
                   onClick={handleCheckout}
@@ -185,7 +287,6 @@ function CartPage() {
         )}
       </Container>
 
-      {/* Checkout Modal */}
       {isCheckingOut && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-[#212121] p-6 rounded-lg max-w-md w-full mx-4">
@@ -201,7 +302,7 @@ function CartPage() {
                     className="flex justify-between text-gray-300"
                   >
                     <span>
-                      {item.title} x{item.quantity}
+                      {item.title} x{item.quantity || 1}
                     </span>
                     <span>
                       Rp{" "}
@@ -225,6 +326,10 @@ function CartPage() {
                 </div>
               </div>
             </div>
+
+            {checkoutError && (
+              <div className="text-danger mb-3">{checkoutError}</div>
+            )}
 
             <div className="flex gap-3">
               <button

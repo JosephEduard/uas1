@@ -5,12 +5,12 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import "../style/menu.css";
 
-const CTATool = ({ onSearch }) => {
+const CTATool = () => {
   const [inputText, setInputText] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(inputText); // Mengirim teks ke komponen induk
+    // onSearch(inputText); // Mengirim teks ke komponen induk
   };
 
   const handleChange = (e) => {
@@ -50,11 +50,9 @@ const CTATool = ({ onSearch }) => {
               value={inputText}
               onChange={handleChange}
             />
-            <Link to={"/searchlist"}>
-              <Button variant="dark" type="submit">
-                <FontAwesomeIcon icon={faMagnifyingGlass} />
-              </Button>
-            </Link>
+            <Button variant="dark" type="submit">
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </Button>
           </Form>
         </div>
       </Container>

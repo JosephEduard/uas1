@@ -36,6 +36,7 @@
   align-items: center;
   margin: 5px;
   width: 100px;
+  position: relative;
 }
 
 .x-nav-tool {
@@ -44,6 +45,11 @@
   justify-content: center;
   align-items: center;
   margin: 5px;
+  color: var(--primary-text-color);
+}
+.x-nav-tool button {
+  display: flex;
+  align-items: center;
   color: var(--primary-text-color);
 }
 
@@ -97,6 +103,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  overflow: visible;
 }
 
 .x-popup {
@@ -235,11 +242,13 @@
 
 .x-cat-img:hover {
   background-color: var(--primary-color);
-  transition: 0.2s ease-in-out;
+  transition: 0.08s ease-in-out;
+  transform: translateY(-5px);
 }
 
 .x-cat-title {
   color: var(--primary-text-color);
+  padding-top: 5px;
 }
 
 .x-menu-game {
@@ -262,6 +271,13 @@
 .x-game-card {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.game-img-hover {
+  transition: transform 0.3s ease-in-out;
+}
+
+.game-img-hover:hover {
+  transform: translateY(-10px);
 }
 
 .x-menu-footer {

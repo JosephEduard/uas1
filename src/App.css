@@ -6,16 +6,18 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(156, 103, 68, 0.37);
+  animation: fadeIn 0.5s ease-out;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  animation: App-logo-spin infinite 20s linear, pulse 2s infinite ease-in-out;
 }
 
 .App-header {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(135deg, #373734 0%, #000000 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -26,45 +28,46 @@
 }
 
 .App-link {
-  color: #61dafb;
-  text-decoration: none;
+  color: var(--primary-color);
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .App-link:hover {
-  color: #00b3ff;
+  color: #f27b0c;
+  text-decoration: underline;
 }
 
-/* Form Styles */
 .login-form-group {
   margin-bottom: 1.5rem;
   text-align: left;
   width: 100%;
+  animation: slideIn 0.5s ease-out;
+  animation-fill-mode: both;
 }
 
 .login-label {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: #ffffff;
+  color: var(--primary-text-color);
 }
 
 .login-input {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(213, 108, 10, 0.2);
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.07);
-  color: white;
+  background: var(--third-color);
+  color: var(--primary-text-color);
   font-size: 1rem;
   transition: all 0.3s ease;
 }
 
 .login-input:focus {
   outline: none;
-  border-color: #61dafb;
-  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-color);
+  background: var(--third-color);
 }
 
 .login-button {
@@ -72,8 +75,8 @@
   padding: 0.75rem;
   border: none;
   border-radius: 5px;
-  background: #61dafb;
-  color: #282c34;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
@@ -82,25 +85,35 @@
 }
 
 .login-button:hover {
-  background: #00b3ff;
+  background: #f27b0c;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(213, 108, 10, 0.3);
+}
+
+.login-button:disabled {
+  background: #8b4907;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .login-error {
   color: #ff6b6b;
   margin: 0.5rem 0;
   font-size: 0.9rem;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .login-success {
   color: #51cf66;
   margin: 0.5rem 0;
   font-size: 0.9rem;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .login-register-text {
   margin-top: 1.5rem;
   font-size: 0.9rem;
+  color: var(--primary-text-color);
 }
 
 @keyframes App-logo-spin {
@@ -116,4 +129,203 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+}
+
+@media screen and (max-width: 480px) {
+  .App {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .App-logo {
+    height: 30vmin;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .App-header {
+    padding: 0.5rem;
+    font-size: calc(8px + 2vmin);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-form-group {
+    margin-bottom: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-label {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-input {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-button {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    margin-top: 0.8rem;
+  }
+}
+
+@media (hover: none) {
+  .login-button:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-error,
+  .login-success {
+    font-size: 0.8rem;
+    margin: 0.4rem 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-register-text {
+    margin-top: 1.2rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .App {
+    max-width: 80%;
+    padding: 1.8rem;
+  }
+
+  .login-input {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .login-button {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .login-label,
+  .login-error,
+  .login-success,
+  .login-register-text {
+    font-size: 0.85rem;
+  }
+}
+
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  .App {
+    padding: 1rem;
+  }
+
+  .login-form-group {
+    margin-bottom: 0.8rem;
+  }
+
+  .login-input {
+    padding: 0.5rem;
+  }
+
+  .login-button {
+    padding: 0.5rem;
+    margin-top: 0.6rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.login-form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.login-form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.login-form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.login-form-group:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.loading-state {
+  position: relative;
+}
+
+.loading-state::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
 }
